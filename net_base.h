@@ -13,7 +13,7 @@
 
 namespace lnet
 {
-    int setNonBlockFd(int fd);
+int setNonBlockFd(int fd);
 }
 
 #endif //NET_BASE_H

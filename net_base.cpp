@@ -6,16 +6,19 @@
     > Created Time: 2016年11月14日 星期一 15时54分34秒
  =======================================================*/
 
+#include <unistd.h>
+#include <fcntl.h>
+
 #include "net_base.h"
 
-namespace lnet
+using namespace lnet;
+
+int lnet::setNonBlockFd(int fd)
 {
-    int setNonBlockFd(int fd)
-    {
-        int old_option = fcntl(fd,F_GETFL);
-        int new_option = old_option | O_NONBLOCK;
-        fcntl(fd,F_SETFL,new_option);
-        return old_option;
-    }
+    int old_option = fcntl(fd,F_GETFL);
+    int new_option = old_option | O_NONBLOCK;
+    fcntl(fd,F_SETFL,new_option);
+    return old_option;
 }
+
 
