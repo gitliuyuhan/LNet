@@ -48,3 +48,8 @@ void Woker::threadFunc()
     }
     loop.waitEvent();
 }
+
+EventLoop* Woker::getWokerLoop()
+{
+    return this->_wokerLoop;
+}

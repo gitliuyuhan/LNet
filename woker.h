@@ -29,6 +29,7 @@ public:
     //线程函数
     void threadFunc();
     void start();
+    EventLoop* getWokerLoop();
 
     int                 _pipefd[2];//用于和master通信
     IOEventHandlerPtr   _pipe1Handler;
@@ -38,6 +39,7 @@ private:
     std::mutex                       _mutex;
     std::condition_variable          _cond;
 };
+typedef std::shared_ptr<lnet::Woker>   WokerPtr;
 
 }
 
