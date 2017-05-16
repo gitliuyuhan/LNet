@@ -7,24 +7,21 @@
  =======================================================*/
 
 #include<iostream>
-#include"../event_loop.h"
-#include"../net_socket.h"
+#include"../tcpserver.cpp"
+#include"../servant.h"
 
-void callback()
+class TestServant : public lnet::Servant
 {
-    std::cout << "hanve new connection" << std::endl;
-}
+public:
+    void doRequest(const char *req)
+    {
+        std::cout << req << std::endl;
+    }
+};
 
 int main()
 {
-    lnet::EventLoop  loop;
-    lnet::ServerSocket   servSocket(8000,"127.0.0.1");
-    servSocket.listen();
-    lnet::IOEventHandlerPtr  acceptHandler(
-            new lnet::IOEventHandler(
-                servSocket.getSockfd(),EV_READ));
-    acceptHandler->setReadCallback(callback);
-    loop.addIOHandler(acceptHandler);
-    loop.waitEvent();
+    lnet::TcpServer<TestServant>  s(10000,"127.0.0.1");
+    s.start(1);
     return 0;
 }

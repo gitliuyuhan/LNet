@@ -20,6 +20,7 @@ namespace lnet
 /*
  * TCP Server类
  */
+template<class ServantManager>
 class TcpServer
 {
 public:
@@ -31,15 +32,18 @@ private:
     //有新连接
     void acceptCallback();  
     //处理新连接
-    void handleNewConnection();
-    void setReadMsgCallback(std::function<void ()> cb);   
+    void handleNewConnection(int i)
+    {
+        _wokerThreadGroup[i]->doPipe1Msg<ServantManager>();
+    }
+    //void setReadMsgCallback(std::function<void ()> cb);   
 private:
     ServerSocket                    _serverSocket;
     IOEventHandlerPtr               _acceptHandler;
     EventLoop                       _masterLoop;//主线程事件循环
     std::vector<lnet::WokerPtr>     _wokerThreadGroup;//工作线程组
     int                             _wokerThreadNum;//工作线程数
-    std::function<void ()>          _handleReadMsg;//处理读消息
+    //std::function<void ()>          _handleReadMsg;//处理读消息
 };
 
 }
