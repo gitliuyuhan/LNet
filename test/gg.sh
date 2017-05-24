@@ -6,4 +6,4 @@
 ##########################################################
 #!/bin/bash
 
-g++ -g ../buffer.cpp ../net_socket.cpp ../net_base.cpp ../event_loop.cpp ../woker.cpp ../tcpconnection.cpp ../tcpserver.cpp ../servant.cpp ./server.cpp -std=c++11 -lpthread -o server
+g++ -g ../buffer.cpp ../net_socket.cpp ../net_base.cpp ../log.cpp ../event_loop.cpp ../woker.cpp ../tcpconnection.cpp ../tcpserver.cpp ../servant.cpp ./server.cpp -std=c++11 -lpthread -o server

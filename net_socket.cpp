@@ -61,20 +61,26 @@ std::string SocketAddr::getIpBySockAddr()
 /*
  * 通用socket选项和方法
  */
-SocketOption::SocketOption()
+SocketOption::SocketOption() : fd(-1)
 {
-    this->createTcpSocket(SOCK_STREAM);
+    //this->createTcpSocket(SOCK_STREAM);
 }
+/*
 SocketOption::SocketOption(int using_fd)
 {
     this->fd = using_fd;
 }
+*/
 SocketOption::~SocketOption()
 {}
 
 int SocketOption::getSockfd()
 {
     return this->fd;
+}
+void SocketOption::setSockfd(int using_fd)
+{
+    this->fd = using_fd;
 }
 //默认创建TCP socket
 int SocketOption::createTcpSocket(int type)
@@ -188,7 +194,7 @@ int SocketOption::setSockLinger(int onoff,int linger)
 /*
  * Socket对象
  */
-Socket::Socket() : SocketOption(-1)
+Socket::Socket()
 {}
 Socket::Socket(SocketAddr serv_addr)
 {
@@ -247,7 +253,7 @@ void Socket::setClientAddr(SocketAddr addr)
 /*
  * ServerSocket
  */
-ServerSocket::ServerSocket() : SocketOption(-1)
+ServerSocket::ServerSocket()
 {}
 ServerSocket::ServerSocket(const int port,const char *ip)
 {
@@ -292,7 +298,8 @@ Socket ServerSocket::accept()
     struct sockaddr_in    addr;
     socklen_t    addrlen = sizeof(addr);
     int connfd = ::accept(this->fd,(struct sockaddr*)&addr,&addrlen);
-    Socket sock(connfd);
+    Socket sock;
+    sock.setSockfd(connfd);
     sock.setServerAddr(server_addr);
     sock.setClientAddr(SocketAddr(addr));
     return sock;

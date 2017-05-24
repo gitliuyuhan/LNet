@@ -14,6 +14,7 @@
 #include "event_loop.h"
 #include "net_socket.h"
 #include "buffer.h"
+#include "log.h"
 //#include "servant.h"
 //#include "woker.h"
 
@@ -47,6 +48,8 @@ private:
     void handleReadEvent();
     //处理写事件
     void handleWriteEvent();
+    //处理错误事件
+    void handleErrorEvent();
     /*
      * 发送
      * @send_buf:暂存未发送成功的数据

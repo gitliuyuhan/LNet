@@ -10,10 +10,12 @@
 #define NET_BASE_H
 
 #include <iostream>
+#include <string>
 
 namespace lnet
 {
 int setNonBlockFd(int fd);
+std::string nowTimeToString();
 }
 
 #endif //NET_BASE_H

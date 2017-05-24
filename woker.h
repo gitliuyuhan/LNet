@@ -18,6 +18,7 @@
 #include "event_loop.h"
 #include "tcpconnection.h"
 #include "buffer.h"
+#include "log.h"
 
 namespace lnet
 {
@@ -53,10 +54,14 @@ public:
         //处理新连接
         const int len = sizeof(lnet::Socket);
         int read_len = _pipe1_recv_buf.readableSize();
+        LOG_DEBUG("read _pipe1_recv_buf " + std::to_string(read_len));
         while(read_len >= len)
         {
             lnet::Socket   sock;
             _pipe1_recv_buf.readBuffer<Socket>(&sock,len);
+            LOG_DEBUG(sock.getClientAddr().getIpBySockAddr()
+                    + ":"
+                    + std::to_string(sock.getClientAddr().getPortBySockAddr()));
             lnet::TcpConnectionPtr  conn(new lnet::TcpConnection(sock,
                         _wokerLoop,
                         this));
@@ -65,6 +70,7 @@ public:
             conn->setServant(servant);
             servant->setTcpConn(conn);
             this->addTcpConnection(sock.getSockfd(),conn);
+            LOG_DEBUG("Worker add new connection");
             read_len = _pipe1_recv_buf.readableSize();
         }
     }

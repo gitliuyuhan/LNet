@@ -52,6 +52,7 @@ void Woker::threadFunc()
         _wokerLoop->addIOHandler(_pipe1Handler);
         this->_cond.notify_one();
     }
+    LOG_INFO("Worker running...");
     loop.waitEvent();
 }
 
@@ -83,11 +84,12 @@ void Woker::recvPipe1Msg()
     {
         memset(buf,'\0',1024);
         int ret = recv(_pipe1Handler->getFd(),buf,1024,0);
+        LOG_DEBUG("read pipe1 ret=" + std::to_string(ret));
         if(ret < 0)
         {
             if((errno == EAGAIN) || (errno == EWOULDBLOCK))
             {
-                std::cout << "read pipe1 end" << std::endl;
+                LOG_DEBUG("read pipe1 end");
                 break;
             }
             ::close(_pipe1Handler->getFd());

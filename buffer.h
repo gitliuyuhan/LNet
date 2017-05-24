@@ -54,7 +54,7 @@ public:
         {
             read_len = len;
         }
-        std::copy(getReadPtr(),getReadPtr()+read_len,p);
+        std::copy(getReadPtr(),getReadPtr()+read_len,(char*)p);
         return read_len;
     }
     //获取读指针

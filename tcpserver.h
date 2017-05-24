@@ -34,6 +34,7 @@ private:
     //处理新连接
     void handleNewConnection(int i)
     {
+        LOG_DEBUG("handleNewConnection");
         _wokerThreadGroup[i]->doPipe1Msg<ServantManager>();
     }
     //void setReadMsgCallback(std::function<void ()> cb);   

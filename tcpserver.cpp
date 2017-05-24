@@ -7,6 +7,7 @@
  =======================================================*/
 
 #include "tcpserver.h"
+#include "log.h"
 #include <functional>
 
 #include <unistd.h>
@@ -25,9 +26,13 @@ TcpServer<ServantManager>::TcpServer(const int port,const char* ip)
     _wokerThreadGroup(0),
     _wokerThreadNum(0)
 {
+    //创建日志模块
+    lnet::Singleton<lnet::Log>::getInstance()->init(lnet::DEBUG);
     _acceptHandler->setReadCallback(
             std::bind(&TcpServer::acceptCallback,this));
     _masterLoop.addIOHandler(_acceptHandler);
+
+    LOG_INFO("TcpServer create success");
 }
 //析构函数
 template<class ServantManager>
@@ -51,6 +56,7 @@ void TcpServer<ServantManager>::start(int num)
     }
     //启动master事件循环
     _serverSocket.listen();
+    LOG_INFO("TcpServer start running");
     _masterLoop.waitEvent();
 }
 
@@ -61,9 +67,17 @@ void TcpServer<ServantManager>::acceptCallback()
     if(connSocket.getSockfd() != -1)
     {
         int i = connSocket.getSockfd() % _wokerThreadNum;
-        int ret = write(_wokerThreadGroup[i]->_pipe1Handler->getFd(),
+        int ret = write(_wokerThreadGroup[i]->_pipefd[0],
                 (const void*)&connSocket,
                 sizeof(connSocket));
+        LOG_DEBUG("TcpServer accept new connection ret=" 
+                + std::to_string(ret));
+        LOG_DEBUG(connSocket.getClientAddr().getIpBySockAddr()
+                + ":"
+                + std::to_string(
+                    connSocket.getClientAddr().getPortBySockAddr()));
+        if(ret == -1)
+            LOG_ERROR("new connection tell Woker failed!");
     }
 }
 

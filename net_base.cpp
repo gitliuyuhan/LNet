@@ -10,6 +10,7 @@
 #include <fcntl.h>
 
 #include "net_base.h"
+#include "string.h"
 
 using namespace lnet;
 
@@ -21,4 +22,14 @@ int lnet::setNonBlockFd(int fd)
     return old_option;
 }
 
-
+std::string lnet::nowTimeToString()
+{
+    time_t     t = time(NULL);
+    struct tm  tmp;
+    char       t_str[20];
+    localtime_r(&t,&tmp);
+    snprintf(t_str,20,"%04d/%02d/%02d %02d:%02d:%02d",
+            tmp.tm_year+1900,tmp.tm_mon+1,tmp.tm_mday,
+            tmp.tm_hour,tmp.tm_min,tmp.tm_sec);
+    return std::string(t_str);
+}

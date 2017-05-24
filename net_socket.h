@@ -34,10 +34,11 @@ class SocketOption
 {
 public:
     SocketOption();
-    SocketOption(int using_fd);
+    //SocketOption(int using_fd);
     ~SocketOption();
 
     int getSockfd();
+    void setSockfd(int using_fd);
     //默认创建TCP socket
     int createTcpSocket(int type = SOCK_STREAM);
     //UDP socket

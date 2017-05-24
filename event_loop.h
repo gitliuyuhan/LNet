@@ -21,6 +21,7 @@
 #include <sys/epoll.h>
 
 #include "net_base.h"
+#include "log.h"
 
 #define EV_READ    0x01
 #define EV_WRITE   0x02
@@ -138,6 +139,7 @@ public:
     Epoller();
     ~Epoller()
     {
+        LOG_DEBUG("close Epoller");
         ::close(_epollfd);
     }
     //添加epoll事件

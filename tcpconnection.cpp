@@ -31,7 +31,14 @@ TcpConnection::TcpConnection(Socket conn,
     //设置写回调，但是不注册事件
     _connHandler->setWriteCallback(
             std::bind(&TcpConnection::handleWriteEvent,this));
+    _connHandler->setErrCallback(
+            std::bind(&TcpConnection::handleErrorEvent,this));
     _loop->addIOHandler(_connHandler);
+    LOG_DEBUG("_connSocket=" 
+            + std::to_string(_connSocket.getSockfd()));
+    LOG_DEBUG("_connHandler="
+            + std::to_string(_connHandler->getFd()));
+    LOG_DEBUG("TcpConnection create success");
 }
 
 TcpConnection::~TcpConnection()
@@ -48,10 +55,17 @@ void TcpConnection::destroy()
     _worker->delTcpConnection(_connSocket.getSockfd());
 }
 
+void TcpConnection::handleErrorEvent()
+{
+    LOG_WARN("connection have error conn=" 
+            + std::to_string(_connSocket.getSockfd()));
+}
+
 void TcpConnection::handleReadEvent()
 {
     #define BUF_SIZE  65535
     char  buf[BUF_SIZE];
+    LOG_DEBUG("have read event");
     while(1)
     {
         memset(buf,'\0',BUF_SIZE);
@@ -60,7 +74,7 @@ void TcpConnection::handleReadEvent()
         {
             if((errno == EAGAIN) || (errno == EWOULDBLOCK))
             {
-                std::cout << "read end" << std::endl;
+                LOG_DEBUG("read end");
                 break;
             }
             //关闭sock
@@ -89,7 +103,8 @@ void TcpConnection::handleReadEvent()
         //取出请求头:记录实际数据长度
         _recv_buf.readBuffer<int>(&data_len,sizeof(int));
         const int len = data_len;
-        char req[len];
+        char req[len+1];
+        ::memset(req,'\0',len+1);
         //读取请求内容
         _recv_buf.readBuffer<char>(req,data_len);
         //处理请求

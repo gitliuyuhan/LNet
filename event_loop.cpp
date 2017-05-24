@@ -8,6 +8,9 @@
 
 #include "event_loop.h"
 
+#include <unistd.h>
+#include <string.h>
+
 using namespace lnet;
 
 /*
@@ -39,6 +42,7 @@ void IOEventHandler::setErrCallback(std::function<void ()> cb)
 }
 void IOEventHandler::handleEvent()
 {
+    LOG_DEBUG("_active_events=" + std::to_string(_active_events));
     if(_active_events & EV_READ)
     {
         if(_readCallback)
@@ -105,6 +109,7 @@ Epoller::Epoller()
      _isET(true)
 {
     _epollfd = epoll_create(10);
+    LOG_DEBUG("create Epoller fd=" + std::to_string(_epollfd));
 }
 
 void Epoller::useET(bool yes)
@@ -124,15 +129,19 @@ void Epoller::addEpollEvents(int fd,int flag)
 {
     struct epoll_event   event;
     event.data.fd = fd;
-    event.events = flag;
+    //event.events = flag;
     if(_isET)
         flag |= EPOLLET;
+    event.events = flag;
     //就绪事件表扩容
     if(fd > _max_event_num)
     {
         _max_event_num *= 2;
         _events.resize(_max_event_num);
     }
+    LOG_DEBUG("addEpollEvents fd=" + std::to_string(fd)
+            + " events=" + std::to_string(event.events)
+            + " epollfd=" + std::to_string(_epollfd));
     epoll_ctl(_epollfd,EPOLL_CTL_ADD,fd,&event);
     lnet::setNonBlockFd(fd);
 }
@@ -194,22 +203,29 @@ void EventLoop::waitEvent()
         {
             int flag = 0x0;
             unsigned int what = _epoller._events[i].events;
+            LOG_DEBUG("epoll what=" + std::to_string(what));
             if(what & (EPOLLERR | EPOLLHUP) )
             {
                 flag |= EV_ERR;
+                LOG_DEBUG("EV_ERR");
             }
             if(what & (EPOLLIN))
             {
                 flag |= EV_READ;
+                LOG_DEBUG("EV_READ");
             }
             if(what & (EPOLLOUT))
             {
                 flag |= EV_WRITE;
+                LOG_DEBUG("EV_WRITE");
             }
             IOEventHandlerIt  it = _ioHandlerList.find(
                     _epoller._events[i].data.fd);
+            LOG_DEBUG("fd=" 
+                    + std::to_string(_epoller._events[i].data.fd));
             if(it != _ioHandlerList.end())
             {
+                LOG_DEBUG("handleEvent");
                 IOEventHandlerPtr ptr = it->second;
                 ptr->registeActiveEvents(flag);//记录激活事件
                 ptr->handleEvent();//事件处理
