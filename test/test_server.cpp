@@ -16,7 +16,8 @@ public:
     void doRequest(const char *req)
     {
         std::cout << req << std::endl;
-        this->sendResponse((const char*)"recv success",13);
+        //this->sendResponse((const char*)"recv success",13);
+        this->sendResponseOther(this,(const char*)"recv success",13);
     }
 };
 

@@ -114,6 +114,7 @@ void TcpConnection::handleReadEvent()
 
 void TcpConnection::handleWriteEvent()
 {
+    LOG_DEBUG("handleWriteEvent");
     int len = _send_buf.readableSize();
     if(len > 0)
     {
@@ -165,7 +166,8 @@ int TcpConnection::send(Buffer &send_buf,
     //全部发送成功，撤销写事件
     if(send_len == len)
     {
-        _connHandler->removeEvents(EV_WRITE);
+        //_connHandler->removeEvents(EV_WRITE);
+        _loop->removeIOEvent(_connHandler->getFd(),EV_WRITE);
     }
     //将未发送成功的数据暂存入buffer
     else
@@ -187,7 +189,8 @@ void TcpConnection::sendData(const char *data,const int len)
     //未发送完整，设置写事件
     if(ret > 0 && ret < len)
     {
-        _connHandler->addEvents(EV_WRITE);
+        //_connHandler->addEvents(EV_WRITE);
+        _loop->addIOEvent(_connHandler->getFd(),EV_WRITE);
     }
 }
 
@@ -197,7 +200,9 @@ void TcpConnection::sendDataFromOther(const char* data,const int len)
     std::lock_guard<std::mutex>   locker(_mutex);
     _send_buf_from_other.writeBuffer(data,len);
     //设置写事件，通知conn去发送
-    _connHandler->addEvents(EV_WRITE);
+    //_connHandler->addEvents(EV_WRITE);
+    _loop->addIOEvent(_connHandler->getFd(),EV_WRITE);
+    LOG_DEBUG("set EV_WRITE");
 }
 /*
 void TcpConnection::setReadMsgCallback(std::function<void ()> cb)
